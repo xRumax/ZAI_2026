@@ -1,8 +1,21 @@
 from django.contrib import admin
-from .models import Task
+from .models import Task, Tag, Project
+
+
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ("name", "created_at")
+    search_fields = ("name",)
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    search_fields = ("name",)
+
+    
 
 @admin.register(Task)
-class ChoreAdmin(admin.ModelAdmin):
-    list_display = ("title", "description", "created_at")
-    list_filter = ("title",)
-    search_fields = ("title",)
+class TaskAdmin(admin.ModelAdmin):
+    list_display = ("title", "project","status","due_date","created_at")
+    list_filter = ("status","project","tags")
+    search_fields = ("title", "description")
