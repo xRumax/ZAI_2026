@@ -1,25 +1,64 @@
-<!doctype html>
-<html lang="pl">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Lista zadań</title>
-  </head>
-  <body>
-    <h1>Lista zadań</h1>
+{% extends "base.html" %}
+{%block title%}Lista
+zadań{%endblock%}
+{% block content %} 
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Zadania</h2>
+    <a href="{% url 'task_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Dodaj zadanie
+    </a>
+</div>
 
-    {% if tasks %}
-    <ul>
-      {% for task in tasks %}
-      <li>
-        <a href="{% url 'task_detail' task.pk %}"> {{task.title}} </a>
-        | status: {{task.status}} | projekt: {{task.project}} | termin:
-        {{task.due_date}}
-      </li>
-      {%endfor%}
-    </ul>
-
-    {%else%}
-    <p>Brak zadań</p>
-    {%endif%}
-  </body>
-</html>
+{% if tasks %}
+<div class = "card shadow-sm">
+  <div class = "table-responsive">
+    <table class = "table table-hover align-middle mb-0">
+      <thead class = "table-light">
+        <tr>
+          <th>Zadanie</th>
+          <th>Projekt</th>
+          <th>Status</th>
+          <th>Termin</th>
+          <th class = "text-end"> Akcje </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+        <tr>
+          <td>
+            <a href ="{%url 'task_detail' task.pk %}" class="fw-bold text-decoration-none text-dark">
+              {{task.title}}
+            </a>
+          </td>
+          <td>
+            <span class = "badge bg-secondary opacity-75">{{task.project}}</span>
+          </td>
+          <td>
+            <span class="badge {% if task.status == 'done' %}bg-success{% else %}bg-info text-dark{% endif %}">
+                            {{ task.get_status_display }}
+                        </span>
+          </td>
+          <td>
+            <span class = "badge bg-secondary opacity-75">{{task.due_date|default:"Brak"}}</span>
+          </td>
+          <td class = "text-end">
+            <a href= {%url 'task_update' task.pk%} class = "btn btn-outline-secondary btn-sm">
+              Edytuj
+            </a>
+          <form action = "{%url 'task_delete' task.pk%}" method = "post" class = "d-inline">
+            {%csrf_token%}
+            <button type = "submit" class = "btn btn-outline-danger btn-sm" onclick="return confirm("Czy na pewno usunąć: {{task.title}}")">
+              Usuń
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+  {%else%}
+  <div class = "alert alert-info"> Brak zadań na liście. </div>
+{%endif%}
+{%endblock%}

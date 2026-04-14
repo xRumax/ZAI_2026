@@ -1,38 +1,114 @@
 <!doctype html>
-
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
-
-    <title>Szczegóły zadania</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Szczegóły zadania | {{ task.title }}</title>
+    {% load bootstrap5 %} {% bootstrap_css %} {% bootstrap_javascript %}
   </head>
+  <body class="bg-light">
+    <div class="container mt-5">
+      <nav aria-label="breadcrumb" class="mb-4">
+        <a
+          href="{% url 'task_list' %}"
+          class="btn btn-link p-0 text-decoration-none"
+        >
+          <i class="bi bi-arrow-left"></i> ← Powrót do listy zadań
+        </a>
+      </nav>
 
-  <body>
-    <h1>{{ task.title }}</h1>
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="card shadow-sm">
+            <div
+              class="card-header bg-white py-3 d-flex justify-content-between align-items-center"
+            >
+              <h1 class="h4 mb-0 fw-bold text-primary">{{ task.title }}</h1>
+              <span
+                class="badge {% if task.status == 'done' %}bg-success{% else %}bg-info text-dark{% endif %} px-3 py-2"
+              >
+                {{ task.get_status_display }}
+              </span>
+            </div>
 
-    <p><strong>Opis:</strong> {{ task.description }}</p>
+            <div class="card-body">
+              <div class="mb-4">
+                <label class="text-muted small uppercase fw-bold"
+                  >Opis zadania</label
+                >
+                <p class="lead">
+                  {{ task.description|default:" Brak opisu dla tego zadania." }}
+                </p>
+              </div>
 
-    <p><strong>Status:</strong> {{ task.status }}</p>
+              <div class="row mb-4">
+                <div class="col-sm-6">
+                  <label class="text-muted small fw-bold">Projekt</label>
+                  <p class="mb-0">
+                    <span class="badge bg-secondary opacity-75"
+                      >{{ task.project }}</span
+                    >
+                  </p>
+                </div>
+                <div class="col-sm-6">
+                  <label class="text-muted small fw-bold">Termin</label>
+                  <p
+                    class="mb-0 {% if not task.due_date %}text-muted{% endif %}"
+                  >
+                    {{ task.due_date|default:"Brak terminu" }}
+                  </p>
+                </div>
+              </div>
 
-    <p><strong>Projekt:</strong> {{ task.project }}</p>
+              <div class="mb-4">
+                <label class="text-muted small fw-bold">Tagi</label>
+                <div>
+                  {% for tag in task.tags.all %}
+                  <span
+                    class="badge rounded-pill bg-light text-dark border me-1"
+                    >{{ tag.name }}</span
+                  >
+                  {% empty %}
+                  <span class="text-muted small">Brak przypisanych tagów</span>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
 
-    <p><strong>Termin:</strong> {{ task.due_date }}</p>
+            <div
+              class="card-footer bg-light d-flex justify-content-between align-items-center py-3"
+            >
+              <small class="text-muted"
+                >Utworzono: {{ task.created_at|date:"d.m.Y H:i" }}</small
+              >
 
-    <p><strong>Tagi:</strong></p>
+              <div>
+                <a
+                  href="{% url 'task_update' task.pk %}"
+                  class="btn btn-outline-primary"
+                >
+                  Edytuj zadanie
+                </a>
 
-    <ul>
-      {% for tag in task.tags.all %}
-
-      <li>{{ tag.name }}</li>
-
-      {% empty %}
-
-      <li>Brak tagów</li>
-
-      {% endfor %}
-    </ul>
-
-    <p><a href="{% url 'task_list' %}">Powrót do listy</a></p>
-    <p><strong>Utworzono:</strong> {{task.created_at}}</p>
+                <form
+                  action="{% url 'task_delete' task.pk %}"
+                  method="post"
+                  class="d-inline"
+                >
+                  {% csrf_token %}
+                  <button
+                    type="submit"
+                    class="btn btn-danger"
+                    onclick="return confirm('Czy na pewno usunąć to zadanie?');"
+                  >
+                    Usuń zadanie
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
